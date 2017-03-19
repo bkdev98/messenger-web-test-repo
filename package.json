@@ -4,9 +4,13 @@
   "description": "Web client for Messenger API using Express and Handlebar",
   "main": "index.js",
   "scripts": {
+    "start": "node server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "bkdev",
+  "engines": {
+    "node": "6.10.0"
+  },
   "license": "ISC",
   "dependencies": {
     "axios": "^0.15.3",
