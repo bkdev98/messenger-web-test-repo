@@ -10,11 +10,15 @@ const axios = require('axios');
 const MomentHandler = require("handlebars.moment");
 MomentHandler.registerHelpers(hbs);
 
+var API_URL = null;
+
 if (process.env.URL) {
-    const API_URL = process.env.URL + '/api'
+    API_URL = process.env.URL + '/api'
 } else {
-    const API_URL = 'http://localhost:3000/api'
+    API_URL = 'http://localhost:3000/api'
 }
+
+console.log(process.env.URL, API_URL);
 
 const app = express();
 const server = http.createServer(app);
@@ -64,7 +68,7 @@ app.get('/', (req, res) => {
 
 app.get('/messengers/:id', (req, res) => {
     //  GET data from API
-    axios.get(`${API_URL}/api/messenger/${req.params.id}`, {
+    axios.get(`${API_URL}/messenger/${req.params.id}`, {
             headers: {
                 'x-auth': req.cookies.token
             }
@@ -77,7 +81,7 @@ app.get('/messengers/:id', (req, res) => {
                     //  POST data to API
                     axios({
                         method: 'post',
-                        url: `${API_URL}/api/messenger/${req.params.id}`,
+                        url: `${API_URL}/messenger/${req.params.id}`,
                         headers: {
                             'x-auth': req.cookies.token
                         },
@@ -111,7 +115,7 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
 
-    axios.post(`${API_URL}/api/auth/login`, { email, password })
+    axios.post(`${API_URL}/auth/login`, { email, password })
         .then((result) => {
             res.cookie('token', result.headers['x-auth']);
             res.redirect('/');
