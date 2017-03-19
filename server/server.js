@@ -10,6 +10,12 @@ const axios = require('axios');
 const MomentHandler = require("handlebars.moment");
 MomentHandler.registerHelpers(hbs);
 
+if (process.env.URL) {
+    const API_URL = process.env.URL + '/api'
+} else {
+    const API_URL = 'http://localhost:3000/api'
+}
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
@@ -44,7 +50,7 @@ hbs.registerHelper('ifCond', function (v1, operator, v2, options) {
 //  Express Routers
 
 app.get('/', (req, res) => {
-    axios.get('http://localhost:3000/api', {
+    axios.get(API_URL, {
             headers: {
                 'x-auth': req.cookies.token
             }
@@ -58,7 +64,7 @@ app.get('/', (req, res) => {
 
 app.get('/messengers/:id', (req, res) => {
     //  GET data from API
-    axios.get(`http://localhost:3000/api/messenger/${req.params.id}`, {
+    axios.get(`${API_URL}/api/messenger/${req.params.id}`, {
             headers: {
                 'x-auth': req.cookies.token
             }
@@ -71,7 +77,7 @@ app.get('/messengers/:id', (req, res) => {
                     //  POST data to API
                     axios({
                         method: 'post',
-                        url: `http://localhost:3000/api/messenger/${req.params.id}`,
+                        url: `${API_URL}/api/messenger/${req.params.id}`,
                         headers: {
                             'x-auth': req.cookies.token
                         },
@@ -105,7 +111,7 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
 
-    axios.post('http://localhost:3000/api/auth/login', { email, password })
+    axios.post(`${API_URL}/api/auth/login`, { email, password })
         .then((result) => {
             res.cookie('token', result.headers['x-auth']);
             res.redirect('/');
@@ -122,7 +128,7 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
     const { username, email, password } = req.body;
 
-    axios.post('http://localhost:3000/api/auth/register', { username, email, password })
+    axios.post(`${API_URL}/auth/register`, { username, email, password })
         .then((result) => {
             res.cookie('token', result.headers['x-auth']);
             res.redirect('/');
@@ -134,7 +140,7 @@ app.post('/register', (req, res) => {
 
 app.get('/logout', (req, res) => {
     res.clearCookie('token');
-    axios.delete('http://localhost:3000/api/auth/logout', {
+    axios.delete(`${API_URL}/auth/logout`, {
         headers: {
             'x-auth': req.cookies.token
         }
