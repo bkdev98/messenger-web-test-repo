@@ -13,7 +13,9 @@
     "body-parser": "^1.17.1",
     "cookie-parser": "^1.4.3",
     "express": "^4.15.2",
+    "handlebars.moment": "^1.0.4",
     "hbs": "^4.0.1",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "socket.io": "^1.7.3"
   }
 }

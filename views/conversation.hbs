@@ -40,7 +40,7 @@
                 <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg" alt="avatar" />
 
                 <div class="chat-about">
-                    <div class="chat-with">chat with {{currentUser.username}}</div>
+                    <div class="chat-with">chat with {{targetUser.username}}</div>
                     <div class="chat-num-messages">already 6 969 messages</div>
                 </div>
                 
@@ -52,7 +52,7 @@
                 <ul>
 
                     {{#each messages}}
-                        {{#ifCond ../currentUser.username '!==' sender}}
+                        {{#ifCond ../targetUser.username '!==' sender}}
                             <li class="clearfix">
                                 <div class="message-data align-right">
                                     <span class="message-data-time">{{moment createdAt "fromNow"}}</span> &nbsp; &nbsp;
@@ -96,16 +96,17 @@
 
     </div>
     <!-- end container -->
-
+    
     <script src="/js/jquery-3.1.1.min.js"></script>
+    <script src="/js/handlebars-v4.0.5.js"></script>
     <script id="message-template" type="text/x-handlebars-template">
         <li class="clearfix">
             <div class="message-data align-right">
-                <span class="message-data-time">{{time}}, Today</span> &nbsp; &nbsp;
-                <span class="message-data-name">Sung</span> <i class="fa fa-circle me"></i>
+                <span class="message-data-time">\{{time}}</span> &nbsp; &nbsp;
+                <span class="message-data-name">{{currentUser.username}}</span> <i class="fa fa-circle me"></i>
             </div>
             <div class="message other-message float-right">
-                {{messageOutput}}
+                \{{messageOutput}}
             </div>
         </li>
     </script>
@@ -113,18 +114,19 @@
     <script id="message-response-template" type="text/x-handlebars-template">
         <li>
             <div class="message-data">
-                <span class="message-data-name"><i class="fa fa-circle online"></i> Quoc Khanh</span>
-                <span class="message-data-time">{{time}}, Today</span>
+                <span class="message-data-name"><i class="fa fa-circle online"></i>{{targetUser.username}}</span>
+                <span class="message-data-time">\{{time}}</span>
             </div>
             <div class="message my-message">
-                {{response}}
+                \{{response}}
             </div>
         </li>
     </script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
-    <script src="/js/handlebars-v4.0.5.js"></script>
     <script src="/js/moment.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="/js/index.js"></script>
+    <script src="/js/message.js"></script>
 </body>
 
 </html>
