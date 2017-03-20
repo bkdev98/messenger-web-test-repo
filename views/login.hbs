@@ -30,8 +30,10 @@
                 <input id="login__password" type="password" name="password" class="form__input" placeholder="Password" required>
             </div>
 
+            <div id="loginError" style="color: red; text-align: center"></div>
+
             <div class="form__field">
-                <input type="submit" value="Sign In">
+                <input type="submit" id="submitSignIn" value="Sign In">
             </div>
 
             <div class="form__field">
@@ -65,6 +67,32 @@
 
     <script src="/js/jquery-3.1.1.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script>
+        $("#submitSignIn").on("click", function () {
+            event.preventDefault();
+            var user = {
+                email: $("#login__username").val(),
+                password: $("#login__password").val()
+            }
+            $.ajax({
+                url: "http://localhost:3000/api/auth/login",
+                type: 'POST',
+                dataType: 'json',
+                beforeSend: function () {
+                    $("#loginError").empty();
+                },
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(user),
+                success: function (data, status, request) {
+                    document.cookie = "token=" + request.getResponseHeader('x-auth');
+                    window.location = "/";
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    $("#loginError").append("<p>Something went wrong, try again.</p>");
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

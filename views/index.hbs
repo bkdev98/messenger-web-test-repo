@@ -17,20 +17,7 @@
                 <input type="text" placeholder="search" />
                 <i class="fa fa-search"></i>
             </div>
-            <ul class="list">
-                {{#each userList}}
-                    <li class="clearfix">
-                        <a href="/messengers/{{_id}}">
-                            <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01.jpg" alt="avatar" />
-                            <div class="about">
-                                <div class="name">{{username}}</div>
-                                <div class="status">
-                                    <i class="fa fa-circle online"></i> online
-                                </div>
-                            </div>
-                        </a>
-                    </li>
-                {{/each}}
+            <ul class="list" id="user-list">
 
             </ul>
         </div>
@@ -80,31 +67,51 @@
     <!-- end container -->
 
     <script src="/js/jquery-3.1.1.min.js"></script>
-    <script id="message-template" type="text/x-handlebars-template">
-        <li class="clearfix">
-            <div class="message-data align-right">
-                <span class="message-data-time">{{time}}, Today</span> &nbsp; &nbsp;
-                <span class="message-data-name">Sung</span> <i class="fa fa-circle me"></i>
-            </div>
-            <div class="message other-message float-right">
-                {{messageOutput}}
-            </div>
-        </li>
+    <script src="/js/handlebars-v4.0.5.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+
+    <script id="user-list-items" type="text/x-handlebars-template">
+        \{{#each userList}}
+            <li class="clearfix">
+                <a href="/messengers/\{{_id}}">
+                    <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01.jpg" alt="avatar" />
+                    <div class="about">
+                        <div class="name">\{{username}}</div>
+                        <div class="status">
+                            <i class="fa fa-circle online"></i> online
+                        </div>
+                    </div>
+                </a>
+            </li>
+        \{{/each}}
     </script>
 
-    <script id="message-response-template" type="text/x-handlebars-template">
-        <li>
-            <div class="message-data">
-                <span class="message-data-name"><i class="fa fa-circle online"></i> Quoc Khanh</span>
-                <span class="message-data-time">{{time}}, Today</span>
-            </div>
-            <div class="message my-message">
-                {{response}}
-            </div>
-        </li>
+    <script>
+        function readCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        $.ajax({
+            type: "GET",
+            beforeSend: function(request) {
+                request.setRequestHeader("x-auth", readCookie("token"));
+            },
+            url: "http://localhost:3000/api",
+            dataType: "json",
+            success: function (data) {
+                var templateResponse = Handlebars.compile($("#user-list-items").html());
+                console.log(data);
+                $("#user-list").append(templateResponse(data));
+            }
+        });
     </script>
-    <script src="/js/jquery-3.1.1.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
 </body>
 
 </html>

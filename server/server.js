@@ -18,8 +18,6 @@ if (process.env.URL) {
     API_URL = 'http://localhost:3000/api'
 }
 
-console.log(process.env.URL, API_URL);
-
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
@@ -54,16 +52,18 @@ hbs.registerHelper('ifCond', function (v1, operator, v2, options) {
 //  Express Routers
 
 app.get('/', (req, res) => {
-    axios.get(API_URL, {
-            headers: {
-                'x-auth': req.cookies.token
-            }
-        })
-        .then((result) => {
-            res.render('index.hbs', result.data);
-        }).catch((e) => {
-            res.redirect('/login');
-        });
+    res.render('index.hbs');
+    
+    // axios.get(API_URL, {
+    //         headers: {
+    //             'x-auth': req.cookies.token
+    //         }
+    //     })
+    //     .then((result) => {
+    //         res.render('index.hbs', result.data);
+    //     }).catch((e) => {
+    //         res.redirect('/login');
+    //     });
 });
 
 app.get('/messengers/:id', (req, res) => {
@@ -74,32 +74,32 @@ app.get('/messengers/:id', (req, res) => {
             }
         })
         .then((result) => {
-            io.on('connection', (socket) => {
-                console.log(`${result.data.currentUser.username} connected`);
-                //  Waiting for new message
-                socket.on('createMessage', (newEmail) => {
-                    //  POST data to API
-                    axios({
-                        method: 'post',
-                        url: `${API_URL}/messenger/${req.params.id}`,
-                        headers: {
-                            'x-auth': req.cookies.token
-                        },
-                        data: {
-                            'content': newEmail.content
-                        }
-                    }).then((mess) => {
-                        //  Emit event to clients
-                        socket.broadcast.emit('newMessage', mess.data);
-                    }).catch((e) => {
-                        console.log(e);
-                    });
-                });
+            // io.on('connection', (socket) => {
+            //     console.log(`${result.data.currentUser.username} connected`);
+            //     //  Waiting for new message
+            //     socket.on('createMessage', (newEmail) => {
+            //         //  POST data to API
+            //         axios({
+            //             method: 'post',
+            //             url: `${API_URL}/messenger/${req.params.id}`,
+            //             headers: {
+            //                 'x-auth': req.cookies.token
+            //             },
+            //             data: {
+            //                 'content': newEmail.content
+            //             }
+            //         }).then((mess) => {
+            //             //  Emit event to clients
+            //             socket.broadcast.emit('newMessage', mess.data);
+            //         }).catch((e) => {
+            //             console.log(e);
+            //         });
+            //     });
 
-                socket.on('disconnect', () => {
-                    console.log('Disconnected to server');
-                });
-            });
+            //     socket.on('disconnect', () => {
+            //         console.log('Disconnected to server');
+            //     });
+            // });
 
             res.render('conversation.hbs', result.data);
         }).catch((e) => {
@@ -112,35 +112,35 @@ app.get('/login', (req, res) => {
     res.render('login.hbs');
 });
 
-app.post('/login', (req, res) => {
-    const { email, password } = req.body;
+// app.post('/login', (req, res) => {
+//     const { email, password } = req.body;
 
-    axios.post(`${API_URL}/auth/login`, { email, password })
-        .then((result) => {
-            res.cookie('token', result.headers['x-auth']);
-            res.redirect('/');
-        })
-        .catch((err) => {
-            res.redirect('/login');
-        });
-})
+//     axios.post(`${API_URL}/auth/login`, { email, password })
+//         .then((result) => {
+//             res.cookie('token', result.headers['x-auth']);
+//             res.redirect('/');
+//         })
+//         .catch((err) => {
+//             res.redirect('/login');
+//         });
+// })
 
 app.get('/register', (req, res) => {
     res.render('register.hbs');
 });
 
-app.post('/register', (req, res) => {
-    const { username, email, password } = req.body;
+// app.post('/register', (req, res) => {
+//     const { username, email, password } = req.body;
 
-    axios.post(`${API_URL}/auth/register`, { username, email, password })
-        .then((result) => {
-            res.cookie('token', result.headers['x-auth']);
-            res.redirect('/');
-        })
-        .catch((err) => {
-            res.redirect('/register');
-        });
-});
+//     axios.post(`${API_URL}/auth/register`, { username, email, password })
+//         .then((result) => {
+//             res.cookie('token', result.headers['x-auth']);
+//             res.redirect('/');
+//         })
+//         .catch((err) => {
+//             res.redirect('/register');
+//         });
+// });
 
 app.get('/logout', (req, res) => {
     res.clearCookie('token');

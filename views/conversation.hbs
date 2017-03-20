@@ -17,7 +17,7 @@
                 <input type="text" placeholder="search" />
                 <i class="fa fa-search"></i>
             </div>
-            <ul class="list">
+            <ul class="list" id="user-list">
                 {{#each userList}}
                     <li class="clearfix">
                         <a href="/messengers/{{_id}}">
@@ -31,7 +31,6 @@
                         </a>
                     </li>
                 {{/each}}
-
             </ul>
         </div>
 
@@ -40,7 +39,7 @@
                 <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg" alt="avatar" />
 
                 <div class="chat-about">
-                    <div class="chat-with">chat with {{targetUser.username}}</div>
+                    <div class="chat-with">chat with \{{targetUser.username}}</div>
                     <div class="chat-num-messages">already 6 969 messages</div>
                 </div>
                 
@@ -49,13 +48,12 @@
             <!-- end chat-header -->
 
             <div class="chat-history">
-                <ul>
-
+                <ul id="message-history">
                     {{#each messages}}
-                        {{#ifCond ../targetUser.username '!==' sender}}
+                        {{#ifCond ../targetUser.username '!==' sender }}
                             <li class="clearfix">
                                 <div class="message-data align-right">
-                                    <span class="message-data-time">{{moment createdAt "fromNow"}}</span> &nbsp; &nbsp;
+                                    <span class="message-data-time">{{createdAt}}</span> &nbsp; &nbsp;
                                     <span class="message-data-name">{{sender}}</span> <i class="fa fa-circle me"></i>
 
                                 </div>
@@ -67,7 +65,7 @@
                             <li>
                                 <div class="message-data">
                                     <span class="message-data-name"><i class="fa fa-circle online"></i> {{sender}}</span>
-                                    <span class="message-data-time">{{moment createdAt "fromNow"}}</span>
+                                    <span class="message-data-time">{{createdAt}}</span>
                                 </div>
                                 <div class="message my-message">
                                     {{content}}
@@ -99,6 +97,7 @@
     
     <script src="/js/jquery-3.1.1.min.js"></script>
     <script src="/js/handlebars-v4.0.5.js"></script>
+    
     <script id="message-template" type="text/x-handlebars-template">
         <li class="clearfix">
             <div class="message-data align-right">
@@ -122,10 +121,41 @@
             </div>
         </li>
     </script>
+
     <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
     <script src="/js/moment.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/index.js"></script>
+    <script>
+        function readCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+        
+        var id = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
+
+        {{!--$.ajax({
+            type: "GET",
+            beforeSend: function(request) {
+                request.setRequestHeader("x-auth", readCookie("token"));
+            },
+            url: "http://localhost:3000/api/messenger/" + id,
+            dataType: "json",
+            success: function (data) {
+                var userTemplateResponse = Handlebars.compile($("#user-list-items").html());
+                var messageTemplateResponse = Handlebars.compile($("#message-history-item").html());
+
+                $("#user-list").append(userTemplateResponse(data));
+                $("#message-history").append(messageTemplateResponse(data));
+            }
+        });--}}
+    </script>
 </body>
 
 </html>

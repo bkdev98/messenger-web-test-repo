@@ -27,7 +27,7 @@
 
             <div class="form__field">
                 <label for="login__username"><svg class="icon"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#user"></use></svg><span class="hidden">Email</span></label>
-                <input id="login__username" type="text" name="email" class="form__input" placeholder="Email" required>
+                <input id="login__email" type="text" name="email" class="form__input" placeholder="Email" required>
             </div>
 
             <div class="form__field">
@@ -37,11 +37,13 @@
 
             <div class="form__field">
                 <label for="login__password"><svg class="icon"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#lock"></use></svg><span class="hidden">Confirm Password</span></label>
-                <input id="login__password" type="password" name="confirm-password" class="form__input" placeholder="Confirm Password" required>
+                <input id="login__password__confirm" type="password" name="confirm-password" class="form__input" placeholder="Confirm Password" required>
             </div>
 
+            <div id="loginError" style="color: red; text-align: center"></div>
+
             <div class="form__field">
-                <input type="submit" value="Sign up">
+                <input type="submit" id="submitSignUp" value="Sign up">
             </div>
 
         </form>
@@ -73,6 +75,33 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
     <script src="/js/handlebars-v4.0.5.js"></script>
     <script src="/js/index.js"></script>
+    <script>
+        $("#submitSignUp").on("click", function () {
+            event.preventDefault();
+            var user = {
+                username: $("#login__username").val(),
+                email: $("#login__email").val(),
+                password: $("#login__password").val()
+            };
+            $.ajax({
+                url: "http://localhost:3000/api/auth/register",
+                type: 'POST',
+                dataType: 'json',
+                beforeSend: function () {
+                    $("#loginError").empty();
+                },
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(user),
+                success: function (data, status, request) {
+                    document.cookie = "token=" + request.getResponseHeader('x-auth');
+                    window.location = "/";
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    $("#loginError").append("<p>Something went wrong, try again.</p>");
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
