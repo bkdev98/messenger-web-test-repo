@@ -66,7 +66,13 @@ app.get('/', (req, res) => {
         });
 });
 
+var conversationId = null;
+var targetUserId = null;
+var authToken = null;
+
 app.get('/messengers/:id', (req, res) => {
+    targetUserId = req.params.id;
+    authToken = req.cookies.token;
     //  GET data from API
     axios.get(`${API_URL}/messenger/${req.params.id}`, {
             headers: {
@@ -74,32 +80,52 @@ app.get('/messengers/:id', (req, res) => {
             }
         })
         .then((result) => {
+            conversationId = result.data.conversationId;
+
+
             io.on('connection', (socket) => {
-                console.log(`${result.data.currentUser.username} connected`);
+                // console.log(`${result.data.currentUser.username} connected`);
                 //  Waiting for new message
+
+                socket.on('join', function (room) {
+
+                    if (socket.room) {
+                        console.log(result.data.currentUser.username + " left room" + socket.room);
+                        socket.leave(socket.room);
+                    }
+
+                    socket.room = room;
+                    console.log(result.data.currentUser.username + " joined room" + conversationId);
+                    socket.join(room);
+                });
+
+                // console.log(socket.id);
                 socket.on('createMessage', (newEmail) => {
                     //  POST data to API
                     axios({
                         method: 'post',
-                        url: `${API_URL}/messenger/${req.params.id}`,
+                        url: `${API_URL}/messenger/${targetUserId}`,
                         headers: {
-                            'x-auth': req.cookies.token
+                            'x-auth': authToken
                         },
                         data: {
                             'content': newEmail.content
                         }
                     }).then((mess) => {
                         //  Emit event to clients
-                        socket.broadcast.emit('newMessage', mess.data);
+                        socket.broadcast.to(conversationId).emit('newMessage', mess.data);
                     }).catch((e) => {
                         console.log(e);
                     });
                 });
 
                 socket.on('disconnect', () => {
-                    console.log('Disconnected to server');
+                    console.log(result.data.currentUser.username + ' disconnected to server');
                 });
             });
+
+
+
 
             res.render('conversation.hbs', result.data);
         }).catch((e) => {

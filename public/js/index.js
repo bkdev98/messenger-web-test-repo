@@ -1,7 +1,15 @@
 var socket = io();
-
+console.log(conversationId);
 socket.on('connect', function () {
   console.log('Connected to server');
+
+  socket.emit('join', function (err) {
+    if (err) {
+      console.log(err);
+    } else {
+      
+    }
+  });
 
   socket.on('newMessage', function (message) {
     var templateResponse = Handlebars.compile($("#message-response-template").html());
@@ -35,7 +43,7 @@ var chat = {
     this.render();
   },
   emitCreateMessage: function (content) {
-    socket.emit('createMessage', {
+    socket.to(conversationId).emit('createMessage', {
         content
     });
   },
