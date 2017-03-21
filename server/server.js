@@ -1,4 +1,5 @@
 const express = require('express');
+const firebase = require('firebase');
 const socketIO = require('socket.io');
 const http = require('http');
 const bodyParser = require('body-parser');
@@ -9,6 +10,16 @@ const cookieParser = require('cookie-parser');
 const axios = require('axios');
 const MomentHandler = require("handlebars.moment");
 MomentHandler.registerHelpers(hbs);
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDt6RXCwFDaOiAT8QhZyU3iOKGrAiRPxNU",
+    authDomain: "messenger-app-6fb8e.firebaseapp.com",
+    databaseURL: "https://messenger-app-6fb8e.firebaseio.com",
+    storageBucket: "messenger-app-6fb8e.appspot.com",
+    messagingSenderId: "250437655467"
+};
+
+firebase.initializeApp(firebaseConfig);
 
 var API_URL = null;
 
