@@ -38,7 +38,7 @@
             </div>
 
             <div class="form__field">
-                <button class="google__button" onclick="alert('hello');">
+                <button class="google__button" id="google-auth-button">
                     Sign Up With Google Account
                 </button>
             </div>
@@ -96,6 +96,25 @@
                     $("#error-messages").append("<p>" + e.message + "</p>")
                 });
         });
+        $("#google-auth-button").click(function (e) {
+            e.preventDefault();
+            var provider = new firebase.auth.GoogleAuthProvider();
+            provider.addScope('profile');
+            provider.addScope('email');
+            firebase.auth().signInWithPopup(provider).then(function(result) {
+                var token = result.credential.idToken;                
+                document.cookie = "token=" + token;
+                var user = result.user;
+                $.post("/register", {
+                    uid: user.uid,
+                    idToken: token,
+                    email: user.email
+                }, function (data, status) {
+                    window.location = data.redirect;
+                });
+            });
+        });
+        
     </script>
 
 </body>

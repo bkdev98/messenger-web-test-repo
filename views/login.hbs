@@ -37,7 +37,7 @@
             </div>
 
             <div class="form__field">
-                <button class="google__button" onclick="alert('hello');">
+                <button class="google__button" id="google-auth-button">
                     Sign In With Google Account
                 </button>
             </div>
@@ -78,13 +78,40 @@
 
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((user) => {
-                    window.location = "/";
+                    firebase.auth().currentUser.getToken(true)
+                        .then(function (idToken) {
+                            document.cookie = "token=" + idToken;
+                            $.post("/login", {
+                                uid: user.uid,
+                                idToken
+                            }, function (data, status) {
+                                window.location = data.redirect;
+                            });
+                        })
                 })
                 .catch((e) => {
-                    $("#error-messages").append("<p>" + e.message + "</p>")
+                    $("#error-messages").append("<p>Authentication failed, try again</p>")
                 })
-
         });
+        $("#google-auth-button").click(function (e) {
+            e.preventDefault();
+            var provider = new firebase.auth.GoogleAuthProvider();
+            provider.addScope('profile');
+            provider.addScope('email');
+            firebase.auth().signInWithPopup(provider).then(function(result) {
+                var token = result.credential.idToken;                
+                document.cookie = "token=" + token;
+                var user = result.user;
+                $.post("/register", {
+                    uid: user.uid,
+                    idToken: token,
+                    email: user.email
+                }, function (data, status) {
+                    window.location = data.redirect;
+                });
+            });
+        });
+        
     </script>
 </body>
 
