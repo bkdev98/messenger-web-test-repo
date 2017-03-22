@@ -103,7 +103,7 @@
         <li class="clearfix">
             <div class="message-data align-right">
                 <span class="message-data-time">\{{time}}</span> &nbsp; &nbsp;
-                <span class="message-data-name">{{currentUser.username}}</span> <i class="fa fa-circle me"></i>
+                <span class="message-data-name">{{currentUser.fullname}}</span> <i class="fa fa-circle me"></i>
             </div>
             <div class="message other-message float-right">
                 \{{messageOutput}}
@@ -114,7 +114,7 @@
     <script id="message-response-template" type="text/x-handlebars-template">
         <li>
             <div class="message-data">
-                <span class="message-data-name"><i class="fa fa-circle online"></i>{{targetUser.username}}</span>
+                <span class="message-data-name"><i class="fa fa-circle online"></i>{{targetUser.fullname}}</span>
                 <span class="message-data-time">\{{time}}</span>
             </div>
             <div class="message my-message">
@@ -129,30 +129,29 @@
     <script>
         var conversationId = "{{conversationId}}";
         var socket = io();
-        console.log(conversationId);
         socket.on('connect', function () {
             console.log('Connected to server');
-
             socket.emit('join', conversationId);
+        });
 
-            socket.on('newMessage', function (message) {
-                var templateResponse = Handlebars.compile($("#message-response-template").html());
-                var contextResponse = {
+        socket.on('newMessage', function (message) {
+
+            var templateResponse = Handlebars.compile($("#message-response-template").html());
+            var contextResponse = {
                 response: message.content,
                 time: message.createdAt
-                };
-                chat.$chatHistoryList.append(templateResponse(contextResponse));
-                chat.scrollToBottom();
+            };
+            chat.$chatHistoryList.append(templateResponse(contextResponse));
+            chat.scrollToBottom();
 
-                // var contextResponse = {
-                //   response: message.content,
-                //   time: message.createdAt
-                // };
+            // var contextResponse = {
+            //   response: message.content,
+            //   time: message.createdAt
+            // };
 
-                // chat.$chatHistoryList.append('<li><div class="message-data"><span class="message-data-name"><i class="fa fa-circle online"></i>hello</span><span class="message-data-time">' + contextResponse.time + '</span></div><div class="message my-message">' + contextResponse.response + '</div></li>');
-                // chat.scrollToBottom();
-                console.log(contextResponse);
-            });
+            // chat.$chatHistoryList.append('<li><div class="message-data"><span class="message-data-name"><i class="fa fa-circle online"></i>hello</span><span class="message-data-time">' + contextResponse.time + '</span></div><div class="message my-message">' + contextResponse.response + '</div></li>');
+            // chat.scrollToBottom();
+            console.log(contextResponse);
         });
 
         socket.on('disconnect', function () {
@@ -160,16 +159,14 @@
         });
 
         var chat = {
-        messageToSend: '',
+        message: {},
         init: function () {
             this.cacheDOM();
             this.bindEvents();
             this.render();
         },
-        emitCreateMessage: function (content) {
-            socket.emit('createMessage', {
-                content
-            });
+        emitCreateMessage: function (message) {
+            socket.emit('createMessage', message);
         },
         cacheDOM: function () {
             this.$chatHistory = $('.chat-history');
@@ -183,22 +180,25 @@
         },
         render: function () {
             this.scrollToBottom();
-            if (this.messageToSend.trim() !== '') {
-            var template = Handlebars.compile($("#message-template").html());
-            var context = {
-                messageOutput: this.messageToSend,
-                time: new Date().getTime()
-            };
+            if (this.message.content.trim() !== '') {
+                var template = Handlebars.compile($("#message-template").html());
+                var context = {
+                    messageOutput: this.message.content,
+                    time: new Date().getTime()
+                };
 
-            this.$chatHistoryList.append(template(context));
-            this.scrollToBottom();
-            this.$textarea.val('');
+                this.$chatHistoryList.append(template(context));
+                this.scrollToBottom();
+                this.$textarea.val('');
             }
         },
         addMessage: function () {
-            this.messageToSend = this.$textarea.val()
-            this.emitCreateMessage(this.messageToSend);
+            this.message = {
+                content: this.$textarea.val(),
+                sender: "{{currentUser.fullname}}"
+            };
             this.render();
+            this.emitCreateMessage(this.message);
         },
         addMessageEnter: function (event) {
             // enter was pressed

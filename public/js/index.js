@@ -68,6 +68,7 @@ var chat = {
 
       this.$chatHistoryList.append(template(context));
       this.scrollToBottom();
+      console.log('render');
       this.$textarea.val('');
     }
   },
