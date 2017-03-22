@@ -73,7 +73,7 @@ var chat = {
     }
   },
   addMessage: function () {
-    this.messageToSend = this.$textarea.val()
+    this.messageToSend = this.$textarea.val();
     this.emitCreateMessage(this.messageToSend);
     this.render();
   },
