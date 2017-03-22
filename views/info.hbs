@@ -14,40 +14,22 @@
 <body class="align">
     <div class="grid">
 
-        <form class="form login" id="loginForm">
+        <form class="form login" id="infoForm">
 
             <div class="form__field form__title">
-                <h1>Login</h1>
+                <h1>Update Info</h1>
             </div>
 
             <div class="form__field">
-                <label for="login__username"><svg class="icon"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#user"></use></svg><span class="hidden">Email</span></label>
-                <input id="email" type="text" name="email" class="form__input" placeholder="Email" required>
+                <label for="login__username"><svg class="icon"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#user"></use></svg><span class="hidden">Your name</span></label>
+                <input id="name" type="text" name="name" class="form__input" placeholder="Your name" required>
             </div>
 
             <div class="form__field">
-                <label for="login__password"><svg class="icon"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#lock"></use></svg><span class="hidden">Password</span></label>
-                <input id="password" type="password" name="password" class="form__input" placeholder="Password" required>
-            </div>
-
-            <div class="form__field" style="color: #c0392b; text-align: center;" id="error-messages"></div>
-
-            <div class="form__field">
-                <input type="submit" value="Sign In">
-            </div>
-
-            <div class="form__field">
-                <button class="google__button" onclick="alert('hello');">
-                    Sign In With Google Account
-                </button>
+                <input type="submit" value="Update">
             </div>
 
         </form>
-
-        <p class="text--center">Not a member? <a href="./register">Sign up now</a>
-    
-        </p>
-
     </div>
 
     <svg xmlns="http://www.w3.org/2000/svg" class="icons">
@@ -65,25 +47,38 @@
         </symbol>
     </svg>
 
-    <script src="/js/jquery-3.1.1.min.js"></script>    
+    <script src="/js/jquery-3.1.1.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.7.3/firebase.js"></script>
     <script src="/js/firebase-config.js"></script>
+
     <script>
-        $("#loginForm").submit(function(e) {
+        function readCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        $("#infoForm").submit(function(e) {
             e.preventDefault();
 
-            const email = $("#email").val();
-            const password = $("#password").val();
-            $("#error-messages").empty();
+            const fullname = $("#name").val();
+            const uid = "{{uid}}";
+            const usersRef = firebase.database().ref("users/" + uid);
 
-            firebase.auth().signInWithEmailAndPassword(email, password)
-                .then((user) => {
-                    window.location = "/";
+            usersRef.update({
+                fullname
+            })
+                .then(() => {
+                    window.location = '/';
                 })
                 .catch((e) => {
-                    $("#error-messages").append("<p>" + e.message + "</p>")
+                    window.location = '/info';
                 })
-
         });
     </script>
 </body>

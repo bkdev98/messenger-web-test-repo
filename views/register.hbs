@@ -14,34 +14,33 @@
 <body class="align">
     <div class="grid">
 
-        <form action="/register" method="POST" class="form login">
+        <form class="form login" id="form-register">
 
             <div class="form__field form__title">
                 <h1>Register</h1>
             </div>
 
             <div class="form__field">
-                <label for="login__username"><svg class="icon"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#user"></use></svg><span class="hidden">Username</span></label>
-                <input id="login__username" type="text" name="username" class="form__input" placeholder="Username" required>
-            </div>
-
-            <div class="form__field">
                 <label for="login__username"><svg class="icon"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#user"></use></svg><span class="hidden">Email</span></label>
-                <input id="login__username" type="text" name="email" class="form__input" placeholder="Email" required>
+                <input id="email" type="text" name="email" class="form__input" placeholder="Email" required>
             </div>
 
             <div class="form__field">
                 <label for="login__password"><svg class="icon"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#lock"></use></svg><span class="hidden">Password</span></label>
-                <input id="login__password" type="password" name="password" class="form__input" placeholder="Password" required>
+                <input id="password" type="password" name="password" class="form__input" placeholder="Password" required>
             </div>
 
-            <div class="form__field">
-                <label for="login__password"><svg class="icon"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#lock"></use></svg><span class="hidden">Confirm Password</span></label>
-                <input id="login__password" type="password" name="confirm-password" class="form__input" placeholder="Confirm Password" required>
+            <div class="form__field" style="color: #c0392b; text-align: center;" id="error-messages">
             </div>
 
             <div class="form__field">
                 <input type="submit" value="Sign up">
+            </div>
+
+            <div class="form__field">
+                <button class="google__button" onclick="alert('hello');">
+                    Sign Up With Google Account
+                </button>
             </div>
 
         </form>
@@ -70,9 +69,35 @@
     </svg>
 
     <script src="/js/jquery-3.1.1.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
-    <script src="/js/handlebars-v4.0.5.js"></script>
-    <script src="/js/index.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.7.3/firebase.js"></script>
+    <script src="/js/firebase-config.js"></script>
+    <script>
+        $("#form-register").submit(function(e) {
+            e.preventDefault();
+            
+            const email = $("#email").val();
+            const password = $("#password").val();
+            $("#error-messages").empty();
+
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((user) => {
+                    firebase.auth().currentUser.getToken(true).then(function (idToken) {
+                        document.cookie = "token=" + idToken;
+                        $.post("/register", {
+                            uid: user.uid,
+                            email: user.email,
+                            idToken
+                        }, function (data, status) {
+                            window.location = data.redirect;
+                        });
+                    })
+                })
+                .catch((e) => {
+                    $("#error-messages").append("<p>" + e.message + "</p>")
+                });
+        });
+    </script>
+
 </body>
 
 </html>
